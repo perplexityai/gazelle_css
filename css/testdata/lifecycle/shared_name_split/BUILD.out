@@ -1,0 +1,10 @@
+# gazelle:css_library_name css
+
+load("@gazelle_css//css:defs.bzl", "css_module_library")
+
+# gazelle:css_module_enabled true
+
+css_module_library(
+    name = "css",
+    srcs = ["Button.module.css"],
+)
