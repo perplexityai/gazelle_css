@@ -1,0 +1,17 @@
+module(
+    name = "gazelle_css_gazelle_ts_integration",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "gazelle", version = "0.50.0")
+bazel_dep(name = "gazelle_css", version = "0.0.0")
+bazel_dep(name = "gazelle_ts", version = "0.4.18")
+
+# The integration .bazelrc references @llvm directly. Bzlmod does not expose
+# transitive repositories to consumers, so the test workspace declares it.
+bazel_dep(name = "llvm", version = "0.7.7")
+
+local_path_override(
+    module_name = "gazelle_css",
+    path = "../..",
+)

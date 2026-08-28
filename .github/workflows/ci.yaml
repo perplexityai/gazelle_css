@@ -51,3 +51,26 @@ jobs:
         run: |
           bazelisk build //styles
           bazelisk run //:gazelle -- update -mode=diff
+
+  gazelle-ts-integration:
+    name: gazelle_ts integration / bazel ${{ matrix.bazel }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel: ["9.0.0", "8.6.0"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # 0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}-gazelle-ts-bazel${{ matrix.bazel }}
+          repository-cache: true
+      - name: Test generated TypeScript dependencies
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel }}
+        working-directory: integration/gazelle_ts
+        run: |
+          bazelisk test //...
+          bazelisk build //live:live
+          bazelisk run //:gazelle -- update -mode=diff
