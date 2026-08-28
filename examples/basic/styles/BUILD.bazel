@@ -1,0 +1,10 @@
+load("@gazelle_css//css:defs.bzl", "css_library")
+
+css_library(
+    name = "styles",
+    srcs = [
+        "reset.css",
+        "theme.css",
+    ],
+    visibility = ["//visibility:public"],
+)

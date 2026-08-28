@@ -1,1 +1,57 @@
 # gazelle_css
+
+A Gazelle language extension that generates `css_library` targets for CSS
+packages. The initial implementation intentionally stays small; this repository
+is scaffolded for Bazel testing, examples, automated GitHub releases, and Bazel
+Central Registry publication.
+
+## Usage
+
+Add the module to `MODULE.bazel`:
+
+```starlark
+bazel_dep(name = "gazelle", version = "0.50.0")
+bazel_dep(name = "gazelle_css", version = "0.0.0")
+```
+
+Compose the extension into a Gazelle binary in the root `BUILD.bazel`:
+
+```starlark
+load("@gazelle//:def.bzl", "gazelle", "gazelle_binary")
+
+gazelle_binary(
+    name = "gazelle_bin",
+    languages = ["@gazelle_css//css"],
+)
+
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle_bin",
+)
+```
+
+Then run `bazel run //:gazelle`. Each package containing `.css` files receives
+one `css_library` named after the package directory.
+
+## Directives
+
+| Directive | Default | Purpose |
+| --- | --- | --- |
+| `css_extension` | `enabled` | Use `disabled` to skip a subtree. |
+| `css_library_name` | package basename | Override the generated target name. |
+| `css_visibility` | `//visibility:public` | Space-separated visibility labels. |
+
+## Development
+
+```sh
+bazel test //...
+cd examples/basic && bazel run //:gazelle -- update -mode=diff
+```
+
+CI tests the module and consumer example on Bazel 8.x and 9.x. Releases use
+conventional commits, release-please, `bazel-contrib`'s ruleset release
+workflow, and `publish-to-bcr`.
+
+## License
+
+Apache 2.0.

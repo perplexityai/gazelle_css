@@ -1,0 +1,5 @@
+# Configuration for the publish-to-bcr GitHub App.
+# https://github.com/bazel-contrib/publish-to-bcr#configuration
+fixedReleaser:
+  login: longlho
+  email: holevietlong@gmail.com

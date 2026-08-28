@@ -1,0 +1,5 @@
+bazel-*
+.bazelrc.user
+MODULE.bazel.lock
+node_modules/
+coverage.out

@@ -1,0 +1,7 @@
+# Empty package marker so //:go.mod and release metadata are addressable.
+
+exports_files([
+    "LICENSE",
+    "README.md",
+    "go.mod",
+])

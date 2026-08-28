@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  commitlint:
+    name: conventional commits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '26'
+      - name: Validate commit messages
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          npm ci
+          commits="$RUNNER_TEMP/commits"
+          if git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            git rev-list --reverse "$BASE_SHA..$HEAD_SHA" > "$commits"
+          else
+            echo "$HEAD_SHA" > "$commits"
+          fi
+          while IFS= read -r commit; do
+            git show --no-patch --format=%B "$commit" | npx commitlint
+          done < "$commits"
+
+  bazel-test:
+    name: bazel ${{ matrix.bazel }} test
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel: ["9.0.0", "8.6.0"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # 0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}-bazel${{ matrix.bazel }}
+          repository-cache: true
+      - name: Test module
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel }}
+        run: bazelisk test //...
+
+  example:
+    name: example / bazel ${{ matrix.bazel }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel: ["9.0.0", "8.6.0"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # 0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}-example-bazel${{ matrix.bazel }}
+          repository-cache: true
+      - name: Build generated target and check Gazelle idempotency
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel }}
+        working-directory: examples/basic
+        run: |
+          bazelisk build //styles
+          bazelisk run //:gazelle -- update -mode=diff
