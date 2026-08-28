@@ -1,0 +1,7 @@
+load("//tools:css.bzl", "custom_css_module_library")
+
+custom_css_module_library(
+    name = "css",
+    srcs = ["Current.module.css"],
+    tags = ["manual"],
+)

@@ -1,0 +1,8 @@
+# gazelle:css_module_enabled false
+
+load("//tools:css.bzl", "custom_css_module_library")
+
+custom_css_module_library(
+    name = "css",
+    srcs = ["Removed.module.css"],
+)
