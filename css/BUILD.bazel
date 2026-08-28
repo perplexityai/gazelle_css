@@ -1,3 +1,4 @@
+load("@gazelle//:def.bzl", "gazelle_binary", "gazelle_generation_test")
 load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 exports_files(["defs.bzl"])
@@ -37,4 +38,17 @@ go_test(
         "@gazelle//config",
         "@gazelle//language",
     ],
+)
+
+gazelle_binary(
+    name = "gazelle_test_binary",
+    languages = [":css"],
+    visibility = ["//visibility:private"],
+)
+
+gazelle_generation_test(
+    name = "gazelle_generation_test",
+    gazelle_binary = ":gazelle_test_binary",
+    gazelle_timeout_seconds = 60,
+    test_data = glob(["testdata/**"]),
 )
