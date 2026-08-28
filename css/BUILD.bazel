@@ -4,7 +4,15 @@ exports_files(["defs.bzl"])
 
 go_library(
     name = "css",
-    srcs = ["language.go"],
+    srcs = [
+        "config.go",
+        "configure.go",
+        "generate.go",
+        "imports.go",
+        "kinds.go",
+        "language.go",
+        "resolve.go",
+    ],
     importpath = "github.com/perplexityai/gazelle_css/css",
     visibility = ["//visibility:public"],
     deps = [
