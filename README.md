@@ -50,6 +50,10 @@ map it to their contract-producing macro:
 # gazelle:map_kind css_module_library my_css_module_library //tools:css.bzl
 ```
 
+Gazelle then adds, updates, and removes the mapped rule and its custom load on
+subsequent runs while the plugin continues to reason about `css_module_library`. Use
+one direct mapping from the abstract kind to the consumer macro.
+
 ## Directives
 
 | Directive | Default | Purpose |

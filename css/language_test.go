@@ -146,6 +146,33 @@ func TestGenerateRulesRestoresPlainLibraryWhenModulesAreDisabled(t *testing.T) {
 	}
 }
 
+func TestGenerateRulesDeletesStaleMappedCSSModuleRule(t *testing.T) {
+	c := &config.Config{
+		Exts: map[string]interface{}{languageName: newCSSConfig()},
+		KindMap: map[string]config.MappedKind{
+			cssModuleKind: {
+				FromKind: cssModuleKind,
+				KindName: "custom_css_module_library",
+				KindLoad: "//tools:css.bzl",
+			},
+		},
+	}
+	existing := rule.NewRule("custom_css_module_library", "css")
+	existing.SetAttr("srcs", []string{"Removed.module.css"})
+	got := NewLanguage().GenerateRules(language.GenerateArgs{
+		Config: c,
+		Rel:    "components",
+		File:   &rule.File{Rules: []*rule.Rule{existing}},
+	})
+
+	if got, want := len(got.Empty), 1; got != want {
+		t.Fatalf("generated %d empty rules for mapped CSS Module, want %d", got, want)
+	}
+	if got, want := got.Empty[0].Kind(), cssModuleKind; got != want {
+		t.Fatalf("empty mapped module rule kind = %q, want canonical %q", got, want)
+	}
+}
+
 func TestGenerateRulesDisabled(t *testing.T) {
 	c := &config.Config{Exts: map[string]interface{}{
 		languageName: &cssConfig{enabled: false},

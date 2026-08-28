@@ -1,0 +1,9 @@
+load("@gazelle_css//css:defs.bzl", "css_library")
+
+# gazelle:css_module_enabled false
+
+css_library(
+    name = "delete",
+    srcs = ["Removed.module.css"],
+    visibility = ["//visibility:public"],
+)

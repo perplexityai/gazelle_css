@@ -1,0 +1,3 @@
+# gazelle:generation_mode update_only
+# gazelle:css_module_enabled true
+# gazelle:map_kind css_module_library custom_css_module_library //tools:css.bzl

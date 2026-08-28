@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/language"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 )
@@ -31,14 +32,14 @@ func (l *cssLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 	libraryName := cssLibraryName(args.Rel, cfg)
 	if len(cssSrcs) > 0 {
 		rules = append(rules, newCSSLibrary(libraryName, cfg, cssSrcs))
-	} else if cfg.modules.enabled && len(moduleSrcs) > 0 && existingRule(args.File, cssLibraryKind, libraryName) != nil {
+	} else if cfg.modules.enabled && len(moduleSrcs) > 0 && existingRule(args.Config, args.File, cssLibraryKind, libraryName) != nil {
 		empty = append(empty, rule.NewRule(cssLibraryKind, libraryName))
 	}
 	if cfg.modules.enabled && len(moduleSrcs) > 0 {
 		r := rule.NewRule(cssModuleKind, cfg.modules.name)
 		r.SetAttr("srcs", moduleSrcs)
 		rules = append(rules, r)
-	} else if existingRule(args.File, cssModuleKind, cfg.modules.name) != nil {
+	} else if existingRule(args.Config, args.File, cssModuleKind, cfg.modules.name) != nil {
 		empty = append(empty, rule.NewRule(cssModuleKind, cfg.modules.name))
 	}
 	imports := make([]interface{}, len(rules))
@@ -63,14 +64,25 @@ func newCSSLibrary(name string, cfg *cssConfig, srcs []string) *rule.Rule {
 	return r
 }
 
-func existingRule(f *rule.File, kind, name string) *rule.Rule {
+func existingRule(c *config.Config, f *rule.File, kind, name string) *rule.Rule {
 	if f == nil {
 		return nil
 	}
 	for _, r := range f.Rules {
-		if r.Kind() == kind && r.Name() == name {
+		if kindMatches(c, r.Kind(), kind) && r.Name() == name {
 			return r
 		}
 	}
 	return nil
+}
+
+func kindMatches(c *config.Config, actual, canonical string) bool {
+	if actual == canonical {
+		return true
+	}
+	if c == nil {
+		return false
+	}
+	mapped, ok := c.KindMap[canonical]
+	return ok && actual == mapped.KindName
 }
