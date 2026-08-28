@@ -14,19 +14,35 @@ func (l *cssLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 	if !ok || !cfg.enabled {
 		return language.GenerateResult{}
 	}
-	var srcs []string
+	var cssSrcs, moduleSrcs []string
 	for _, name := range args.RegularFiles {
-		if strings.HasSuffix(strings.ToLower(name), ".css") {
-			srcs = append(srcs, name)
+		switch {
+		case cfg.modules.enabled && strings.HasSuffix(name, ".module.css"):
+			moduleSrcs = append(moduleSrcs, name)
+		case strings.HasSuffix(strings.ToLower(name), ".css"):
+			cssSrcs = append(cssSrcs, name)
 		}
 	}
-	if len(srcs) == 0 {
-		return language.GenerateResult{}
+	sort.Strings(cssSrcs)
+	sort.Strings(moduleSrcs)
+
+	var rules []*rule.Rule
+	if len(cssSrcs) > 0 {
+		rules = append(rules, newCSSLibrary(args.Rel, cfg, cssSrcs))
 	}
-	sort.Strings(srcs)
+	if len(moduleSrcs) > 0 {
+		r := rule.NewRule(cssModuleKind, cfg.modules.name)
+		r.SetAttr("srcs", moduleSrcs)
+		rules = append(rules, r)
+	}
+	imports := make([]interface{}, len(rules))
+	return language.GenerateResult{Gen: rules, Imports: imports}
+}
+
+func newCSSLibrary(rel string, cfg *cssConfig, srcs []string) *rule.Rule {
 	name := cfg.name
 	if name == "" {
-		name = path.Base(args.Rel)
+		name = path.Base(rel)
 		if name == "." || name == "" {
 			name = "css"
 		}
@@ -34,10 +50,5 @@ func (l *cssLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 	r := rule.NewRule(cssLibraryKind, name)
 	r.SetAttr("srcs", srcs)
 	r.SetAttr("visibility", cfg.visibility)
-	// Gazelle requires one import-data entry per generated rule. CSS import
-	// resolution is intentionally deferred, so the corresponding value is nil.
-	return language.GenerateResult{
-		Gen:     []*rule.Rule{r},
-		Imports: []interface{}{nil},
-	}
+	return r
 }

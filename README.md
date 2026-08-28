@@ -30,8 +30,17 @@ gazelle(
 )
 ```
 
-Then run `bazel run //:gazelle`. Each package containing `.css` files receives
-one `css_library` named after the package directory.
+Then run `bazel run //:gazelle`. Each package containing ordinary `.css` files
+receives one `css_library` named after the package directory. CSS Modules retain
+that behavior unless a subtree opts into separate contracts:
+
+```starlark
+# gazelle:css_module_enabled true
+```
+
+Within an enabled subtree, files ending in `.module.css` are kept out of the
+ordinary library and collected in a separate
+`css_module_library(name = "css")` rule.
 
 The extension also exposes an abstract `css_module_library` kind for CSS Module
 contracts. Its built-in implementation is a source-only fallback; consumers
