@@ -1,0 +1,9 @@
+# gazelle:css_module_enabled false
+
+load("@gazelle_css//css:defs.bzl", "css_library")
+
+css_library(
+    name = "restore",
+    srcs = ["Button.module.css"],
+    visibility = ["//visibility:public"],
+)

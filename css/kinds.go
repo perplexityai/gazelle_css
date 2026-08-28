@@ -5,12 +5,12 @@ import "github.com/bazelbuild/bazel-gazelle/rule"
 func (l *cssLang) Kinds() map[string]rule.KindInfo {
 	return map[string]rule.KindInfo{
 		cssLibraryKind: {
-			NonEmptyAttrs:  map[string]bool{"name": true, "srcs": true},
+			NonEmptyAttrs:  map[string]bool{"srcs": true},
 			MergeableAttrs: map[string]bool{"srcs": true},
 			ResolveAttrs:   map[string]bool{"deps": true},
 		},
 		cssModuleKind: {
-			NonEmptyAttrs:  map[string]bool{"name": true, "srcs": true},
+			NonEmptyAttrs:  map[string]bool{"srcs": true},
 			MergeableAttrs: map[string]bool{"srcs": true},
 		},
 	}

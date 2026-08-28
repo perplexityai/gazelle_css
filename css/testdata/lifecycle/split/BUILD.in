@@ -1,0 +1,7 @@
+load("@gazelle_css//css:defs.bzl", "css_library")
+
+css_library(
+    name = "split",
+    srcs = ["Button.module.css"],
+    visibility = ["//visibility:public"],
+)

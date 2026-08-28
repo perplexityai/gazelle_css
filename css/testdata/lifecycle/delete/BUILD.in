@@ -1,0 +1,6 @@
+load("@gazelle_css//css:defs.bzl", "css_module_library")
+
+css_module_library(
+    name = "css",
+    srcs = ["Removed.module.css"],
+)
