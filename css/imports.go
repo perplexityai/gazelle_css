@@ -9,7 +9,7 @@ import (
 )
 
 func (l *cssLang) Imports(c *config.Config, r *rule.Rule, f *rule.File) []resolve.ImportSpec {
-	if r.Kind() != ruleKind {
+	if r.Kind() != cssLibraryKind {
 		return nil
 	}
 	var imports []resolve.ImportSpec
