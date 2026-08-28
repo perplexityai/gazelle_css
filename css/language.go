@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	languageName = "css"
-	ruleKind     = "css_library"
+	languageName   = "css"
+	cssLibraryKind = "css_library"
+	cssModuleKind  = "css_module_library"
 )
 
 type cssLang struct{}

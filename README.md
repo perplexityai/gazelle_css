@@ -33,6 +33,14 @@ gazelle(
 Then run `bazel run //:gazelle`. Each package containing `.css` files receives
 one `css_library` named after the package directory.
 
+The extension also exposes an abstract `css_module_library` kind for CSS Module
+contracts. Its built-in implementation is a source-only fallback; consumers
+map it to their contract-producing macro:
+
+```starlark
+# gazelle:map_kind css_module_library my_css_module_library //tools:css.bzl
+```
+
 ## Directives
 
 | Directive | Default | Purpose |

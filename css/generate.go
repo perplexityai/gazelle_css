@@ -31,7 +31,7 @@ func (l *cssLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 			name = "css"
 		}
 	}
-	r := rule.NewRule(ruleKind, name)
+	r := rule.NewRule(cssLibraryKind, name)
 	r.SetAttr("srcs", srcs)
 	r.SetAttr("visibility", cfg.visibility)
 	// Gazelle requires one import-data entry per generated rule. CSS import
