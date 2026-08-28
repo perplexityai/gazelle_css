@@ -1,0 +1,14 @@
+load("@gazelle_ts//ts:defs.bzl", "ts_library")
+load("//tools:css.bzl", "custom_css_module_library")
+
+ts_library(
+    name = "app",
+    srcs = ["app.ts"],
+    visibility = ["//visibility:public"],
+    deps = [":css.web"],
+)
+
+custom_css_module_library(
+    name = "css",
+    srcs = ["Button.module.css"],
+)

@@ -1,0 +1,30 @@
+load("@gazelle//:def.bzl", "gazelle", "gazelle_binary", "gazelle_generation_test")
+
+# gazelle:generation_mode update_only
+# gazelle:exclude testdata
+# gazelle:css_module_enabled true
+# gazelle:map_kind css_module_library custom_css_module_library //tools:css.bzl
+# gazelle:map_kind ts_library custom_ts_library //tools:ts.bzl
+# gazelle:resolve_regexp ts ts ^#generated/(.+)/[^/]+\.css\.js$ //$1:css.web
+# gazelle:resolve_regexp ts ts ^#generated/[^/]+\.css\.js$ //:css.web
+
+gazelle_binary(
+    name = "gazelle_test_binary",
+    languages = [
+        "@gazelle_ts//ts",
+        "@gazelle_css//css",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle_test_binary",
+)
+
+gazelle_generation_test(
+    name = "gazelle_generation_test",
+    gazelle_binary = ":gazelle_test_binary",
+    gazelle_timeout_seconds = 60,
+    test_data = glob(["testdata/**"]),
+)

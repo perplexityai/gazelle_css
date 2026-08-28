@@ -1,9 +1,9 @@
 # gazelle_css
 
-A Gazelle language extension that generates `css_library` targets for CSS
-packages. The initial implementation intentionally stays small; this repository
-is scaffolded for Bazel testing, examples, automated GitHub releases, and Bazel
-Central Registry publication.
+A Gazelle language extension that maintains ordinary CSS libraries and opt-in
+CSS Module contracts, including standard dependency mappings for generated
+imports. The repository includes Bazel consumer examples, automated GitHub
+releases, and Bazel Central Registry publication support.
 
 ## Usage
 
@@ -77,6 +77,23 @@ standard `# gazelle:resolve` directive remains available for exceptional imports
 If `css_module_name` or a mapped macro exposes a different target suffix, adjust
 the replacement labels to match.
 
+For example, a TypeScript consumer composes both language extensions into the
+same binary:
+
+```starlark
+gazelle_binary(
+    name = "gazelle_bin",
+    languages = [
+        "@gazelle_ts//ts",
+        "@gazelle_css//css",
+    ],
+)
+```
+
+The [gazelle_ts integration](integration/gazelle_ts/README.md) runs this
+composition against a real TypeScript source and verifies that Gazelle adds the
+mapped CSS contract to its generated `deps`.
+
 ## Directives
 
 | Directive | Default | Purpose |
@@ -92,6 +109,7 @@ the replacement labels to match.
 ```sh
 bazel test //...
 cd examples/basic && bazel run //:gazelle -- update -mode=diff
+cd integration/gazelle_ts && bazel test //... && bazel build //live:live
 ```
 
 CI tests the module and consumer example on Bazel 8.x and 9.x. Releases use
