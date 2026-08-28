@@ -40,6 +40,8 @@ one `css_library` named after the package directory.
 | `css_extension` | `enabled` | Use `disabled` to skip a subtree. |
 | `css_library_name` | package basename | Override the generated target name. |
 | `css_visibility` | `//visibility:public` | Space-separated visibility labels. |
+| `css_module_enabled` | `false` | Set to `true` to generate CSS Modules for a subtree. |
+| `css_module_name` | `css` | Name of the aggregate CSS Module target. |
 
 ## Development
 

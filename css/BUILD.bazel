@@ -27,7 +27,10 @@ go_library(
 
 go_test(
     name = "css_test",
-    srcs = ["language_test.go"],
+    srcs = [
+        "configure_test.go",
+        "language_test.go",
+    ],
     embed = [":css"],
     deps = [
         "@gazelle//config",
