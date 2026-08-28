@@ -53,6 +53,13 @@ map it to their contract-producing macro:
 Gazelle then adds, updates, and removes the mapped rule and its custom load on
 subsequent runs while the plugin continues to reason about `css_module_library`. Use
 one direct mapping from the abstract kind to the consumer macro.
+Packages with CSS Modules must have one unambiguous aggregate target. Gazelle
+fails before rewriting a BUILD file when that target name is already owned or
+when multiple module rules exist; configure distinct names or use the standard
+whole-file `# gazelle:ignore` escape hatch.
+Each directory containing `.module.css` files must also be its own Bazel package;
+add a `BUILD.bazel` file instead of collecting nested module sources into a
+parent package.
 
 ## Directives
 

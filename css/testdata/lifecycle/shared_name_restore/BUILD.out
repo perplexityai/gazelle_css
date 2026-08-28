@@ -1,0 +1,11 @@
+# gazelle:css_library_name css
+
+load("@gazelle_css//css:defs.bzl", "css_library")
+
+# gazelle:css_module_enabled false
+
+css_library(
+    name = "css",
+    srcs = ["Button.module.css"],
+    visibility = ["//visibility:public"],
+)

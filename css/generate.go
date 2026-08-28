@@ -26,13 +26,36 @@ func (l *cssLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 	}
 	sort.Strings(cssSrcs)
 	sort.Strings(moduleSrcs)
+	if err := validateCSSModulePackageSources(moduleSrcs); err != nil {
+		rel := args.Rel
+		if rel == "" {
+			rel = "."
+		}
+		l.fatalf("%s: %v", rel, err)
+		return language.GenerateResult{}
+	}
 
 	var rules []*rule.Rule
 	var empty []*rule.Rule
 	libraryName := cssLibraryName(args.Rel, cfg)
+	var retiringLibrary *rule.Rule
+	if cfg.modules.enabled && len(moduleSrcs) > 0 && len(cssSrcs) == 0 {
+		retiringLibrary = existingRule(args.Config, args.File, cssLibraryKind, libraryName)
+	}
+	if len(moduleSrcs) > 0 || hasExistingCSSModuleRule(args.Config, args.File) {
+		generatesLibraryAndModules := len(moduleSrcs) > 0 && len(cssSrcs) > 0
+		if err := validateCSSModuleOwnership(args.Config, args.File, args.OtherGen, cfg.modules.name, libraryName, generatesLibraryAndModules, retiringLibrary); err != nil {
+			rel := args.Rel
+			if rel == "" {
+				rel = "."
+			}
+			l.fatalf("%s: %v", rel, err)
+			return language.GenerateResult{}
+		}
+	}
 	if len(cssSrcs) > 0 {
 		rules = append(rules, newCSSLibrary(libraryName, cfg, cssSrcs))
-	} else if cfg.modules.enabled && len(moduleSrcs) > 0 && existingRule(args.Config, args.File, cssLibraryKind, libraryName) != nil {
+	} else if retiringLibrary != nil {
 		empty = append(empty, rule.NewRule(cssLibraryKind, libraryName))
 	}
 	if cfg.modules.enabled && len(moduleSrcs) > 0 {
