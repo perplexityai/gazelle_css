@@ -61,6 +61,22 @@ Each directory containing `.module.css` files must also be its own Bazel package
 add a `BUILD.bazel` file instead of collecting nested module sources into a
 parent package.
 
+Generated TypeScript imports can resolve to those package-local targets with
+Gazelle's standard `resolve_regexp` directive. For imports shaped like
+`#generated/<package>/<module>.css.js`, put these directives at the repository
+root:
+
+```starlark
+# gazelle:resolve_regexp ts ts ^#generated/(.+)/[^/]+\.css\.js$ //$1:css.web
+# gazelle:resolve_regexp ts ts ^#generated/[^/]+\.css\.js$ //:css.web
+```
+
+The first rule maps non-root packages; the second handles modules in the root
+package. The package-per-directory requirement keeps this mapping exact, and a
+standard `# gazelle:resolve` directive remains available for exceptional imports.
+If `css_module_name` or a mapped macro exposes a different target suffix, adjust
+the replacement labels to match.
+
 ## Directives
 
 | Directive | Default | Purpose |
