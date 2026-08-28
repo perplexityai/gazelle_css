@@ -1,0 +1,7 @@
+module(name = "gazelle_css_bcr_test", version = "0.0.0")
+
+bazel_dep(name = "gazelle_css", version = "0.0.0")
+local_path_override(
+    module_name = "gazelle_css",
+    path = "..",
+)

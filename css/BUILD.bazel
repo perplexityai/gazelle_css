@@ -1,0 +1,28 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+exports_files(["defs.bzl"])
+
+go_library(
+    name = "css",
+    srcs = ["language.go"],
+    importpath = "github.com/perplexityai/gazelle_css/css",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@gazelle//config",
+        "@gazelle//label",
+        "@gazelle//language",
+        "@gazelle//repo",
+        "@gazelle//resolve",
+        "@gazelle//rule",
+    ],
+)
+
+go_test(
+    name = "css_test",
+    srcs = ["language_test.go"],
+    embed = [":css"],
+    deps = [
+        "@gazelle//config",
+        "@gazelle//language",
+    ],
+)
