@@ -1,0 +1,2 @@
+# gazelle:generation_mode update_only
+# gazelle:css_module_enabled true

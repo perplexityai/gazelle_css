@@ -1,0 +1,11 @@
+load("@gazelle_css//css:defs.bzl", "css_module_library")
+
+css_module_library(
+    name = "css",
+    srcs = [
+        "Alpha.module.css",
+        "Beta.module.css",
+    ],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)

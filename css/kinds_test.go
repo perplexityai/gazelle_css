@@ -3,12 +3,18 @@ package css
 import "testing"
 
 func TestCSSModuleKindContract(t *testing.T) {
-	info, ok := NewLanguage().Kinds()[cssModuleKind]
+	kinds := NewLanguage().Kinds()
+	libraryInfo := kinds[cssLibraryKind]
+	if len(libraryInfo.NonEmptyAttrs) != 1 || !libraryInfo.NonEmptyAttrs["srcs"] {
+		t.Fatalf("%s non-empty attrs = %v, want only srcs", cssLibraryKind, libraryInfo.NonEmptyAttrs)
+	}
+
+	info, ok := kinds[cssModuleKind]
 	if !ok {
 		t.Fatalf("Kinds() does not declare %q", cssModuleKind)
 	}
-	if !info.NonEmptyAttrs["name"] || !info.NonEmptyAttrs["srcs"] {
-		t.Fatalf("%s non-empty attrs = %v, want name and srcs", cssModuleKind, info.NonEmptyAttrs)
+	if len(info.NonEmptyAttrs) != 1 || !info.NonEmptyAttrs["srcs"] {
+		t.Fatalf("%s non-empty attrs = %v, want only srcs", cssModuleKind, info.NonEmptyAttrs)
 	}
 	if !info.MergeableAttrs["srcs"] {
 		t.Fatalf("%s srcs are not Gazelle-managed", cssModuleKind)

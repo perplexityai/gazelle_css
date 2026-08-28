@@ -6,6 +6,7 @@ import (
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/language"
+	"github.com/bazelbuild/bazel-gazelle/rule"
 )
 
 func TestGenerateRules(t *testing.T) {
@@ -81,6 +82,67 @@ func TestGenerateRulesTreatsModulesAsPlainCSSWhenDisabled(t *testing.T) {
 	}
 	if want := []string{"Button.module.css"}; !reflect.DeepEqual(got.Gen[0].AttrStrings("srcs"), want) {
 		t.Fatalf("css_library srcs = %v, want %v", got.Gen[0].AttrStrings("srcs"), want)
+	}
+}
+
+func TestGenerateRulesDeletesStaleCSSModuleRule(t *testing.T) {
+	c := &config.Config{Exts: map[string]interface{}{languageName: newCSSConfig()}}
+	existing := rule.NewRule(cssModuleKind, "css")
+	existing.SetAttr("srcs", []string{"Removed.module.css"})
+	got := NewLanguage().GenerateRules(language.GenerateArgs{
+		Config: c,
+		Rel:    "components",
+		File:   &rule.File{Rules: []*rule.Rule{existing}},
+	})
+
+	if got, want := len(got.Empty), 1; got != want {
+		t.Fatalf("generated %d empty rules, want %d", got, want)
+	}
+	if got, want := got.Empty[0].Kind(), cssModuleKind; got != want {
+		t.Fatalf("empty module rule kind = %q, want %q", got, want)
+	}
+	if got, want := got.Empty[0].Name(), "css"; got != want {
+		t.Fatalf("empty module rule name = %q, want %q", got, want)
+	}
+}
+
+func TestGenerateRulesSplitsLegacyLibraryWhenModulesAreEnabled(t *testing.T) {
+	cfg := newCSSConfig()
+	cfg.modules.enabled = true
+	c := &config.Config{Exts: map[string]interface{}{languageName: cfg}}
+	existing := rule.NewRule(cssLibraryKind, "components")
+	existing.SetAttr("srcs", []string{"Button.module.css"})
+	got := NewLanguage().GenerateRules(language.GenerateArgs{
+		Config:       c,
+		Rel:          "components",
+		File:         &rule.File{Rules: []*rule.Rule{existing}},
+		RegularFiles: []string{"Button.module.css"},
+	})
+
+	if count, want := len(got.Gen), 1; count != want || got.Gen[0].Kind() != cssModuleKind {
+		t.Fatalf("generated rules = %v, want one %s", got.Gen, cssModuleKind)
+	}
+	if count, want := len(got.Empty), 1; count != want || got.Empty[0].Kind() != cssLibraryKind {
+		t.Fatalf("empty rules = %v, want one %s", got.Empty, cssLibraryKind)
+	}
+}
+
+func TestGenerateRulesRestoresPlainLibraryWhenModulesAreDisabled(t *testing.T) {
+	c := &config.Config{Exts: map[string]interface{}{languageName: newCSSConfig()}}
+	existing := rule.NewRule(cssModuleKind, "css")
+	existing.SetAttr("srcs", []string{"Button.module.css"})
+	got := NewLanguage().GenerateRules(language.GenerateArgs{
+		Config:       c,
+		Rel:          "components",
+		File:         &rule.File{Rules: []*rule.Rule{existing}},
+		RegularFiles: []string{"Button.module.css"},
+	})
+
+	if count, want := len(got.Gen), 1; count != want || got.Gen[0].Kind() != cssLibraryKind {
+		t.Fatalf("generated rules = %v, want one %s", got.Gen, cssLibraryKind)
+	}
+	if count, want := len(got.Empty), 1; count != want || got.Empty[0].Kind() != cssModuleKind {
+		t.Fatalf("empty rules = %v, want one %s", got.Empty, cssModuleKind)
 	}
 }
 
