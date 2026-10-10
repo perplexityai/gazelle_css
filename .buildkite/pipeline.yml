@@ -110,3 +110,9 @@ steps:
   agents:
     queue: oss
   timeout_in_minutes: 15
+
+notify:
+- github_commit_status:
+    context: release-ready/gazelle-css
+    blocked_builds_as_pending: true
+  if: build.branch == "main" && build.pull_request.id == null && build.tag == null
