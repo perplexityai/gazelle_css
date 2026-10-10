@@ -17,7 +17,30 @@ flowchart TD
   R["Release / deployment triggers"] --> G["Retained GitHub publishing workflows"]
 ```
 
-Each Bazel job restores its suite/version/platform cache, runs checks, then saves after success. Hosted queues: `oss` (Linux AMD64), `oss_darwin_arm64` (macOS ARM64). Queue `default` is not used. Tools are checksum-pinned; pnpm follows `packageManager` or npm uses `npm ci`.
+Each Bazel job restores its isolated repository/action cache, runs checks, then saves after success. Hosted queues: `oss` (Linux AMD64), `oss_darwin_arm64` (macOS ARM64). Queue `default` is not used. Tools are checksum-pinned; pnpm follows `packageManager` or npm uses `npm ci`.
+
+## Cache isolation
+
+Bazel jobs use the `oss-ci-v2` registry with server-enforced pipeline/branch scopes.
+PRs restore their own branch or main; writes stay in their verified branch.
+Main restores only main. GitHub **Prefix third-party fork branch names** must stay
+on, so a fork branch named `main` cannot write the real main scope. Cache keys and
+PR-controlled YAML are not access controls.
+
+Shared hosted cache volumes are removed. Only repository/action caches persist;
+Bazelisk and downloaded tools start fresh per job. The new registry starts empty,
+so existing untrusted cache entries are never restored. Initial builds run cold.
+
+Create the registry once in the OSS cluster with `.buildkite/cache-policy.json`.
+Do not replace it with the unrestricted default registry. Policy scopes come from
+Buildkite's authenticated job claims, not environment variables supplied by jobs.
+
+```mermaid
+flowchart LR
+  M[Main job] -->|save / restore| MC[Main cache scope]
+  P[PR job] -->|save / restore| PC[PR branch cache scope]
+  MC -->|read only| P
+```
 
 Paste `bootstrap.yml` into pipeline settings; never load approval policy from a PR checkout. Forks require writer approval before checkout or hooks. Only GitHub-verified `renovate[bot]` (ID `29139614`, type `Bot`) bypasses. Each new commit needs approval; API errors and stale PR heads fail closed. Enable third-party forks and publish blocked builds as Pending. Keep workflow tokens and pipeline/cluster secrets disabled.
 
