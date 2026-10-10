@@ -23,7 +23,9 @@ Each Bazel job restores its isolated repository/action cache, runs checks, then 
 
 Bazel jobs use the `oss-ci-v2` registry with server-enforced pipeline/branch scopes.
 PRs restore their own branch or main; writes stay in their verified branch.
-Main restores only main. GitHub **Prefix third-party fork branch names** must stay
+Main restores only main. Trigger-created builds cannot save to main: trigger
+steps can request arbitrary branch names. Main writes require verified build
+source `webhook`, `ui`, `api`, or `schedule`. GitHub **Prefix third-party fork branch names** must stay
 on, so a fork branch named `main` cannot write the real main scope. Cache keys and
 PR-controlled YAML are not access controls.
 
