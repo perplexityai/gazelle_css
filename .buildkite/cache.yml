@@ -1,0 +1,16 @@
+caches:
+  - name: bazel
+    cache_key:
+      - gazelle-css-bazel-v1
+      - agent: pipeline
+      - agent: os
+      - agent: arch
+      - env: USE_BAZEL_VERSION
+      - agent: step
+        fallback_limit: true
+      - env: BUILDKITE_COMMIT
+    target_paths:
+      - /tmp/gazelle-css-ci/bin
+      - /tmp/gazelle-css-ci/bazelisk
+      - /tmp/gazelle-css-ci/repository
+      - /tmp/gazelle-css-ci/disk
