@@ -80,7 +80,68 @@ steps:
   agents:
     queue: oss
   timeout_in_minutes: 15
-
+- label: Cross-build smoke binaries / Bazel 9.0.0
+  key: smoke-build-9-0-0
+  agents:
+    queue: oss
+  command:
+  - buildkite-agent cache restore --registry oss-ci-v2 --name bazel
+  - bash .buildkite/build-smoke.sh
+  - buildkite-agent cache save --registry oss-ci-v2 --name bazel
+  env:
+    USE_BAZEL_VERSION: 9.0.0
+  timeout_in_minutes: 60
+- label: Artifact smoke / oss / Bazel 9.0.0
+  key: artifact-smoke-oss-9-0-0
+  depends_on: smoke-build-9-0-0
+  agents:
+    queue: oss
+  command: bash .buildkite/smoke.sh
+  env:
+    USE_BAZEL_VERSION: 9.0.0
+    SMOKE_PRODUCER_STEP: smoke-build-9-0-0
+  timeout_in_minutes: 15
+- label: Artifact smoke / oss_darwin_arm64 / Bazel 9.0.0
+  key: artifact-smoke-oss_darwin_arm64-9-0-0
+  depends_on: smoke-build-9-0-0
+  agents:
+    queue: oss_darwin_arm64
+  command: bash .buildkite/smoke.sh
+  env:
+    USE_BAZEL_VERSION: 9.0.0
+    SMOKE_PRODUCER_STEP: smoke-build-9-0-0
+  timeout_in_minutes: 15
+- label: Cross-build smoke binaries / Bazel 8.6.0
+  key: smoke-build-8-6-0
+  agents:
+    queue: oss
+  command:
+  - buildkite-agent cache restore --registry oss-ci-v2 --name bazel
+  - bash .buildkite/build-smoke.sh
+  - buildkite-agent cache save --registry oss-ci-v2 --name bazel
+  env:
+    USE_BAZEL_VERSION: 8.6.0
+  timeout_in_minutes: 60
+- label: Artifact smoke / oss / Bazel 8.6.0
+  key: artifact-smoke-oss-8-6-0
+  depends_on: smoke-build-8-6-0
+  agents:
+    queue: oss
+  command: bash .buildkite/smoke.sh
+  env:
+    USE_BAZEL_VERSION: 8.6.0
+    SMOKE_PRODUCER_STEP: smoke-build-8-6-0
+  timeout_in_minutes: 15
+- label: Artifact smoke / oss_darwin_arm64 / Bazel 8.6.0
+  key: artifact-smoke-oss_darwin_arm64-8-6-0
+  depends_on: smoke-build-8-6-0
+  agents:
+    queue: oss_darwin_arm64
+  command: bash .buildkite/smoke.sh
+  env:
+    USE_BAZEL_VERSION: 8.6.0
+    SMOKE_PRODUCER_STEP: smoke-build-8-6-0
+  timeout_in_minutes: 15
 notify:
 - github_commit_status:
     context: release-ready/gazelle-css
