@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/perplexityai/gazelle_css/compare/v0.1.0...v0.1.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **ci:** smoke-test artifacts from one cross-build ([#21](https://github.com/perplexityai/gazelle_css/issues/21)) ([552311d](https://github.com/perplexityai/gazelle_css/commit/552311da4d596e0ae2b0794c860134eed3e74f57))
+
 ## 0.1.0 (2026-08-28)
 
 ## What's Changed
