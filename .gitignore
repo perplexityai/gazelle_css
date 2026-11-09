@@ -5,4 +5,4 @@ node_modules/
 coverage.out
 
 # Buildkite test reports and temporary consumers.
-.buildkite-artifacts/
+.ci-artifacts/
